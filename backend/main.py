@@ -51,11 +51,11 @@ from typing import Optional
 
 class ActuatorUpdate(BaseModel):
     mist_maker: Optional[bool] = None
-    fan: Optional[bool] = None
+    cooling_fan: Optional[bool] = None
     grow_light_pwm: Optional[int] = None
     auto_mode: Optional[bool] = None
-    relay_1: Optional[bool] = None
-    relay_2: Optional[bool] = None
+    relay3: Optional[bool] = None
+    relay4: Optional[bool] = None
 
 @app.post("/api/actuators")
 def update_actuators(data: ActuatorUpdate):
