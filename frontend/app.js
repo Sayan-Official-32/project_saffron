@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://127.0.0.1:8001";
+// If opened as a local file (C:/...), point to the backend. Otherwise use relative.
+const API_BASE_URL = window.location.protocol === "file:" ? "http://127.0.0.1:8001" : "";
 
 // Max expected values for gauge calculation
 const MAX_TEMP = 50;
@@ -76,8 +77,93 @@ async function fetchSensorData() {
     }
 }
 
+// Function to update actuators in the database
+async function updateActuators(payload) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/actuators`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+            console.error("Failed to update actuators on server");
+        }
+    } catch (error) {
+        console.error("Error updating actuators:", error);
+    }
+}
+
+// Global UI state
+let isAutoMode = false;
+
+// Setup Event Listeners for UI Controls
+function initActuatorControls() {
+    const mistBtn = document.getElementById('btn-mist');
+    const fanBtn = document.getElementById('btn-fan');
+    const lightSlider = document.getElementById('light-slider');
+    const modeToggle = document.getElementById('mode-toggle');
+    const autoOverlay = document.getElementById('auto-overlay');
+
+    // Helper to toggle a generic button
+    const toggleButton = (btnElement, actuatorKey) => {
+        if (isAutoMode) return; // Prevent manual change in auto mode
+        
+        const isCurrentlyOn = btnElement.classList.contains('on');
+        const newState = !isCurrentlyOn;
+        
+        if (newState) {
+            btnElement.classList.remove('off');
+            btnElement.classList.add('on');
+            btnElement.innerText = "ON";
+        } else {
+            btnElement.classList.remove('on');
+            btnElement.classList.add('off');
+            btnElement.innerText = "OFF";
+        }
+        
+        // Send state to backend
+        updateActuators({ [actuatorKey]: newState });
+    };
+
+    if (mistBtn) {
+        mistBtn.addEventListener('click', () => toggleButton(mistBtn, 'mist_maker'));
+    }
+
+    if (fanBtn) {
+        fanBtn.addEventListener('click', () => toggleButton(fanBtn, 'fan'));
+    }
+
+    if (lightSlider) {
+        lightSlider.addEventListener('change', (e) => {
+            if (isAutoMode) return;
+            const val = parseInt(e.target.value);
+            document.getElementById('light-val-display').innerText = `(${val})`;
+            updateActuators({ grow_light_pwm: val });
+        });
+    }
+
+    if (modeToggle) {
+        modeToggle.addEventListener('change', (e) => {
+            isAutoMode = !e.target.checked; // HTML says "MANUAL (off) ---- AUTO (checked)"
+            
+            if (isAutoMode) {
+                if (autoOverlay) autoOverlay.classList.remove('hidden');
+            } else {
+                if (autoOverlay) autoOverlay.classList.add('hidden');
+            }
+            
+            updateActuators({ auto_mode: isAutoMode });
+        });
+    }
+}
+
 // Fetch data as soon as the window loads
 window.onload = () => {
+    initActuatorControls();
+    
     fetchSensorData();
     // Fetch new data every 3 seconds
     setInterval(fetchSensorData, 3000);
