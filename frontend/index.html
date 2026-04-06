@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saffron Smart Farming Dashboard</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+  <div class="dashboard">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="logo">
+        <i class="fa-solid fa-leaf"></i>
+        <h1>SaffronAI</h1>
+      </div>
+      <div class="status-indicator">
+        <button id="theme-toggle" class="theme-btn" title="Toggle Light/Dark Mode">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <div class="dot" id="connection-dot"></div>
+        <span id="connection-status">Connecting...</span>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- Top Overview Cards (3D Animated Meters) -->
+      <section class="metrics-grid">
+
+        <!-- Temperature Gauge -->
+        <div class="metric-card gauge-card">
+          <h3><i class="fa-solid fa-temperature-half" style="color: var(--accent-temp)"></i> Temperature</h3>
+          <div class="gauge-container">
+            <svg viewBox="0 0 100 100" class="gauge">
+              <defs>
+                <linearGradient id="gradTemp" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f87171" />
+                  <stop offset="100%" stop-color="#dc2626" />
+                </linearGradient>
+                <filter id="glowTemp" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <path class="gauge-bg" d="M 20 80 A 45 45 0 1 1 80 80" />
+              <path class="gauge-fill temp-fill" d="M 20 80 A 45 45 0 1 1 80 80" filter="url(#glowTemp)"
+                stroke="url(#gradTemp)" />
+            </svg>
+            <div class="gauge-value">
+              <span id="val-temp">--</span><span class="unit">°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Humidity Gauge -->
+        <div class="metric-card gauge-card">
+          <h3><i class="fa-solid fa-droplet" style="color: var(--accent-hum)"></i> Humidity</h3>
+          <div class="gauge-container">
+            <svg viewBox="0 0 100 100" class="gauge">
+              <defs>
+                <linearGradient id="gradHum" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#60a5fa" />
+                  <stop offset="100%" stop-color="#2563eb" />
+                </linearGradient>
+                <filter id="glowHum" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <path class="gauge-bg" d="M 20 80 A 45 45 0 1 1 80 80" />
+              <path class="gauge-fill hum-fill" d="M 20 80 A 45 45 0 1 1 80 80" filter="url(#glowHum)"
+                stroke="url(#gradHum)" />
+            </svg>
+            <div class="gauge-value">
+              <span id="val-hum">--</span><span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Soil Moisture Gauge -->
+        <div class="metric-card gauge-card">
+          <h3><i class="fa-solid fa-seedling" style="color: var(--accent-moist)"></i> Moisture</h3>
+          <div class="gauge-container">
+            <svg viewBox="0 0 100 100" class="gauge">
+              <defs>
+                <linearGradient id="gradMoist" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#34d399" />
+                  <stop offset="100%" stop-color="#059669" />
+                </linearGradient>
+                <filter id="glowMoist" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <path class="gauge-bg" d="M 20 80 A 45 45 0 1 1 80 80" />
+              <path class="gauge-fill moist-fill" d="M 20 80 A 45 45 0 1 1 80 80" filter="url(#glowMoist)"
+                stroke="url(#gradMoist)" />
+            </svg>
+            <div class="gauge-value">
+              <span id="val-moist">--</span><span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Air Quality Gauge -->
+        <div class="metric-card gauge-card">
+          <h3><i class="fa-solid fa-wind" style="color: var(--accent-air)"></i> Air Quality</h3>
+          <div class="gauge-container">
+            <svg viewBox="0 0 100 100" class="gauge">
+              <defs>
+                <linearGradient id="gradAir" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fbbf24" />
+                  <stop offset="100%" stop-color="#d97706" />
+                </linearGradient>
+                <filter id="glowAir" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <path class="gauge-bg" d="M 20 80 A 45 45 0 1 1 80 80" />
+              <path class="gauge-fill air-fill" d="M 20 80 A 45 45 0 1 1 80 80" filter="url(#glowAir)"
+                stroke="url(#gradAir)" />
+            </svg>
+            <div class="gauge-value">
+              <span id="val-air">--</span><span class="unit"> ppm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Light Level Gauge -->
+        <div class="metric-card gauge-card">
+          <h3><i class="fa-solid fa-sun" style="color: var(--accent-light)"></i> Light Level</h3>
+          <div class="gauge-container">
+            <svg viewBox="0 0 100 100" class="gauge">
+              <defs>
+                <linearGradient id="gradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fef08a" />
+                  <stop offset="100%" stop-color="#eab308" />
+                </linearGradient>
+                <filter id="glowLight" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <path class="gauge-bg" d="M 20 80 A 45 45 0 1 1 80 80" />
+              <path class="gauge-fill light-fill" d="M 20 80 A 45 45 0 1 1 80 80" filter="url(#glowLight)"
+                stroke="url(#gradLight)" />
+            </svg>
+            <div class="gauge-value">
+              <span id="val-light">--</span><span class="unit"> lux</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Main Layout: Charts & Controls -->
+      <div class="main-grid">
+
+        <!-- Left Column: Charts -->
+        <section class="charts-section">
+          <h2>Environment Trends</h2>
+          <div class="canvas-wrapper">
+            <canvas id="envChart"></canvas>
+          </div>
+        </section>
+
+        <!-- Right Column: Controls -->
+        <section class="controls-section">
+
+          <h2>AI Insights</h2>
+          <div class="control-card ai-card">
+            <div class="ai-header">
+              <div class="ai-title">
+                <i class="fa-solid fa-brain" style="color: var(--accent-hum);"></i>
+                <h3>Mist Prediction</h3>
+              </div>
+              <span id="ai-status-badge" class="badge unk">Awaiting Data...</span>
+            </div>
+
+            <div class="ai-body">
+              <div class="confidence-text">
+                <span>Model Confidence</span>
+                <span id="ai-conf-val">85%</span>
+              </div>
+              <div class="confidence-track">
+                <div class="confidence-fill" id="ai-conf-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <h2>Device Control Panel</h2>
+
+          <div class="control-card control-mode">
+            <div class="control-header">
+              <h3>System Mode</h3>
+              <p>Override automated limits</p>
+            </div>
+            <div class="toggle-switch">
+              <span class="label">MANUAL</span>
+              <label class="switch">
+                <input type="checkbox" id="mode-toggle">
+                <span class="slider round"></span>
+              </label>
+              <span class="label">AUTO</span>
+            </div>
+          </div>
+
+          <div class="control-card actuators" id="manual-controls">
+
+            <div class="control-item">
+              <div class="control-info">
+                <i class="fa-solid fa-cloud-showers-water"></i>
+                <span>Mist Maker</span>
+              </div>
+              <button id="btn-mist" class="state-btn off">OFF</button>
+            </div>
+
+            <div class="control-item">
+              <div class="control-info">
+                <i class="fa-solid fa-fan"></i>
+                <span>Cooling Fan</span>
+              </div>
+              <button id="btn-fan" class="state-btn off">OFF</button>
+            </div>
+
+            <div class="control-item slider-item">
+              <div class="control-info">
+                <i class="fa-solid fa-lightbulb" id="light-bulb-icon"></i>
+                <span>Grow Lights <span id="light-val-display">(0)</span></span>
+              </div>
+              <input type="range" id="light-slider" min="0" max="255" value="0">
+            </div>
+
+            <!-- Disabled Overlay -->
+            <div id="auto-overlay" class="disabled-overlay hidden">
+              <div class="overlay-content">
+                <i class="fa-solid fa-robot" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <p>Devices controlled automatically by sensors.</p>
+                <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Switch to MANUAL to override.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Custom App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
