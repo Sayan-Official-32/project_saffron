@@ -99,6 +99,44 @@ async function updateActuators(payload) {
 // Global UI state
 let isAutoMode = false;
 
+// Theme Initialization and Toggle
+function initTheme() {
+    const themeBtn = document.getElementById('theme-toggle');
+    const root = document.documentElement;
+    const icon = themeBtn ? themeBtn.querySelector('i') : null;
+    
+    // Check local storage for saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        root.setAttribute('data-theme', 'light');
+        if (icon) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+    }
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const isLight = root.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                root.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+                if (icon) {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            } else {
+                root.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                if (icon) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            }
+        });
+    }
+}
+
 // Setup Event Listeners for UI Controls
 function initActuatorControls() {
     const mistBtn = document.getElementById('btn-mist');
@@ -128,12 +166,23 @@ function initActuatorControls() {
         updateActuators({ [actuatorKey]: newState });
     };
 
+    const uvBtn = document.getElementById('btn-uv');
+    const exhaustBtn = document.getElementById('btn-exhaust');
+
     if (mistBtn) {
         mistBtn.addEventListener('click', () => toggleButton(mistBtn, 'mist_maker'));
     }
 
     if (fanBtn) {
-        fanBtn.addEventListener('click', () => toggleButton(fanBtn, 'fan'));
+        fanBtn.addEventListener('click', () => toggleButton(fanBtn, 'cooling_fan'));
+    }
+
+    if (uvBtn) {
+        uvBtn.addEventListener('click', () => toggleButton(uvBtn, 'relay3'));
+    }
+
+    if (exhaustBtn) {
+        exhaustBtn.addEventListener('click', () => toggleButton(exhaustBtn, 'relay4'));
     }
 
     if (lightSlider) {
@@ -160,9 +209,66 @@ function initActuatorControls() {
     }
 }
 
+// Fetch initial actuator states on page load
+async function fetchActuators() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/actuators`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data && !data.error) {
+                
+                const mistBtn = document.getElementById('btn-mist');
+                const fanBtn = document.getElementById('btn-fan');
+                const uvBtn = document.getElementById('btn-uv');
+                const exhaustBtn = document.getElementById('btn-exhaust');
+                const lightSlider = document.getElementById('light-slider');
+                const modeToggle = document.getElementById('mode-toggle');
+                
+                const setToggleState = (btn, isOn) => {
+                    if(!btn) return;
+                    if (isOn) {
+                        btn.classList.remove('off');
+                        btn.classList.add('on');
+                        btn.innerText = "ON";
+                    } else {
+                        btn.classList.remove('on');
+                        btn.classList.add('off');
+                        btn.innerText = "OFF";
+                    }
+                };
+
+                setToggleState(mistBtn, data.mist_maker);
+                setToggleState(fanBtn, data.cooling_fan);
+                setToggleState(uvBtn, data.relay3);
+                setToggleState(exhaustBtn, data.relay4);
+
+                if (lightSlider && data.grow_light_pwm !== undefined) {
+                    lightSlider.value = data.grow_light_pwm;
+                    document.getElementById('light-val-display').innerText = `(${data.grow_light_pwm})`;
+                }
+
+                if (modeToggle) {
+                    modeToggle.checked = !data.auto_mode; 
+                    isAutoMode = data.auto_mode;
+                    const autoOverlay = document.getElementById('auto-overlay');
+                    if (isAutoMode) {
+                        if (autoOverlay) autoOverlay.classList.remove('hidden');
+                    } else {
+                        if (autoOverlay) autoOverlay.classList.add('hidden');
+                    }
+                }
+            }
+        }
+    } catch(e) {
+        console.error("Failed to load initial actuators", e);
+    }
+}
+
 // Fetch data as soon as the window loads
 window.onload = () => {
+    initTheme();
     initActuatorControls();
+    fetchActuators();
     
     fetchSensorData();
     // Fetch new data every 3 seconds
